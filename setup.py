@@ -42,4 +42,9 @@ setup(
         "netagentbench": ["py.typed"],
     },
     include_package_data=True,
+    entry_points={
+        "console_scripts": [
+            "netagentbench=netagentbench.cli:main",
+        ],
+    },
 )
