@@ -1,0 +1,363 @@
+{
+  "version": "0.1.0",
+  "scenarios": [
+    {
+      "id": "config_001",
+      "category": "configuration",
+      "intent": "Configure interface GigabitEthernet0/1 on router R1 with IP 192.168.1.1/24",
+      "context": {
+        "device_id": "R1",
+        "device_type": "router",
+        "current_config": "Interface is currently shutdown"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "configure_interface",
+          "parameters": {
+            "device_id": "R1",
+            "interface_name": "GigabitEthernet0/1",
+            "ip_address": "192.168.1.1",
+            "subnet_mask": "255.255.255.0",
+            "enabled": true
+          },
+          "order": null
+        }
+      ],
+      "difficulty": 1,
+      "requires_reasoning": false,
+      "metadata": {
+        "tags": [
+          "basic",
+          "interface",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "id": "config_002",
+      "category": "configuration",
+      "intent": "Create VLAN 100 named 'Sales' on switch SW1 and assign ports Eth1 and Eth2 to it",
+      "context": {
+        "device_id": "SW1",
+        "device_type": "switch",
+        "available_vlans": [
+          1,
+          10,
+          20
+        ]
+      },
+      "expected_tools": [
+        {
+          "tool_name": "configure_vlan",
+          "parameters": {
+            "device_id": "SW1",
+            "vlan_id": 100,
+            "vlan_name": "Sales",
+            "interfaces": [
+              "Eth1",
+              "Eth2"
+            ]
+          },
+          "order": null
+        }
+      ],
+      "difficulty": 2,
+      "requires_reasoning": false,
+      "metadata": {
+        "tags": [
+          "vlan",
+          "switch",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "id": "troubleshoot_001",
+      "category": "troubleshooting",
+      "intent": "Check connectivity between router R1 and server 10.0.0.5, diagnose any issues",
+      "context": {
+        "device_id": "R1",
+        "device_type": "router",
+        "reported_issue": "Cannot reach server",
+        "server_ip": "10.0.0.5"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "ping_test",
+          "parameters": {
+            "source_device": "R1",
+            "destination": "10.0.0.5",
+            "count": 4
+          },
+          "order": 0
+        },
+        {
+          "tool_name": "traceroute",
+          "parameters": {
+            "source_device": "R1",
+            "destination": "10.0.0.5",
+            "max_hops": 30
+          },
+          "order": 1
+        }
+      ],
+      "difficulty": 2,
+      "requires_reasoning": true,
+      "metadata": {
+        "tags": [
+          "troubleshooting",
+          "connectivity",
+          "diagnostics"
+        ]
+      }
+    },
+    {
+      "id": "security_001",
+      "category": "security",
+      "intent": "Block all traffic from 192.168.50.0/24 to the web server at 10.0.1.10 on router R2",
+      "context": {
+        "device_id": "R2",
+        "device_type": "router",
+        "web_server": "10.0.1.10",
+        "blocked_network": "192.168.50.0/24",
+        "interface": "GigabitEthernet0/0"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "configure_acl",
+          "parameters": {
+            "device_id": "R2",
+            "acl_name": "BLOCK_SUBNET",
+            "acl_type": "extended",
+            "rules": [
+              {
+                "action": "deny",
+                "protocol": "ip",
+                "source": "192.168.50.0/24",
+                "destination": "10.0.1.10/32",
+                "port": "any"
+              }
+            ],
+            "interface": "GigabitEthernet0/0",
+            "direction": "in"
+          },
+          "order": null
+        }
+      ],
+      "difficulty": 3,
+      "requires_reasoning": true,
+      "metadata": {
+        "tags": [
+          "security",
+          "acl",
+          "firewall"
+        ]
+      }
+    },
+    {
+      "id": "config_003",
+      "category": "configuration",
+      "intent": "Add a static route on router R1 to reach network 172.16.0.0/16 via next hop 10.0.0.1",
+      "context": {
+        "device_id": "R1",
+        "device_type": "router",
+        "target_network": "172.16.0.0/16",
+        "gateway": "10.0.0.1"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "configure_routing",
+          "parameters": {
+            "device_id": "R1",
+            "routing_protocol": "static",
+            "destination_network": "172.16.0.0/16",
+            "next_hop": "10.0.0.1"
+          },
+          "order": null
+        }
+      ],
+      "difficulty": 2,
+      "requires_reasoning": false,
+      "metadata": {
+        "tags": [
+          "routing",
+          "static",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "id": "monitor_001",
+      "category": "monitoring",
+      "intent": "Check the status and bandwidth usage of interface GigabitEthernet0/2 on switch SW1",
+      "context": {
+        "device_id": "SW1",
+        "device_type": "switch",
+        "interface": "GigabitEthernet0/2",
+        "concern": "High utilization reported"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "get_interface_status",
+          "parameters": {
+            "device_id": "SW1",
+            "interface_name": "GigabitEthernet0/2"
+          },
+          "order": 0
+        },
+        {
+          "tool_name": "monitor_bandwidth",
+          "parameters": {
+            "device_id": "SW1",
+            "interface_name": "GigabitEthernet0/2"
+          },
+          "order": 1
+        }
+      ],
+      "difficulty": 2,
+      "requires_reasoning": true,
+      "metadata": {
+        "tags": [
+          "monitoring",
+          "bandwidth",
+          "interface"
+        ]
+      }
+    },
+    {
+      "id": "config_004",
+      "category": "configuration",
+      "intent": "Set up SNMP monitoring on router R3 with community string 'public', version v2c, and trap receiver 192.168.1.100",
+      "context": {
+        "device_id": "R3",
+        "device_type": "router",
+        "monitoring_server": "192.168.1.100"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "configure_snmp",
+          "parameters": {
+            "device_id": "R3",
+            "community_string": "public",
+            "version": "v2c",
+            "trap_receivers": [
+              "192.168.1.100"
+            ]
+          },
+          "order": null
+        }
+      ],
+      "difficulty": 2,
+      "requires_reasoning": false,
+      "metadata": {
+        "tags": [
+          "snmp",
+          "monitoring",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "id": "optimization_001",
+      "category": "optimization",
+      "intent": "Configure QoS policy 'VOICE_PRIORITY' on router R1 to prioritize VoIP traffic with high priority and 512kbps bandwidth on interface GigabitEthernet0/1",
+      "context": {
+        "device_id": "R1",
+        "device_type": "router",
+        "interface": "GigabitEthernet0/1",
+        "traffic_type": "VoIP"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "configure_qos",
+          "parameters": {
+            "device_id": "R1",
+            "policy_name": "VOICE_PRIORITY",
+            "class_maps": [
+              {
+                "name": "VOIP",
+                "priority": 1,
+                "bandwidth": "512kbps"
+              }
+            ],
+            "interface": "GigabitEthernet0/1"
+          },
+          "order": null
+        }
+      ],
+      "difficulty": 3,
+      "requires_reasoning": true,
+      "metadata": {
+        "tags": [
+          "qos",
+          "optimization",
+          "voip"
+        ]
+      }
+    },
+    {
+      "id": "config_005",
+      "category": "configuration",
+      "intent": "Backup the configuration of router R1 to /backups/r1_config.txt",
+      "context": {
+        "device_id": "R1",
+        "device_type": "router",
+        "backup_path": "/backups/r1_config.txt"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "backup_configuration",
+          "parameters": {
+            "device_id": "R1",
+            "backup_location": "/backups/r1_config.txt"
+          },
+          "order": null
+        }
+      ],
+      "difficulty": 1,
+      "requires_reasoning": false,
+      "metadata": {
+        "tags": [
+          "backup",
+          "configuration",
+          "maintenance"
+        ]
+      }
+    },
+    {
+      "id": "troubleshoot_002",
+      "category": "troubleshooting",
+      "intent": "Investigate routing issues on router R2 - check routing table and ARP table to diagnose connectivity problems",
+      "context": {
+        "device_id": "R2",
+        "device_type": "router",
+        "reported_issue": "Intermittent connectivity to remote networks"
+      },
+      "expected_tools": [
+        {
+          "tool_name": "get_routing_table",
+          "parameters": {
+            "device_id": "R2"
+          },
+          "order": 0
+        },
+        {
+          "tool_name": "get_arp_table",
+          "parameters": {
+            "device_id": "R2"
+          },
+          "order": 1
+        }
+      ],
+      "difficulty": 3,
+      "requires_reasoning": true,
+      "metadata": {
+        "tags": [
+          "troubleshooting",
+          "routing",
+          "advanced"
+        ]
+      }
+    }
+  ]
+}
