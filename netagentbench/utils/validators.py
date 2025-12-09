@@ -2,6 +2,7 @@
 Validators for NetAgentBench components.
 """
 
+from __future__ import annotations
 from typing import Dict, Any, List
 from netagentbench.scenarios.scenario import Scenario
 

@@ -2,6 +2,7 @@
 Main benchmark class for NetAgentBench.
 """
 
+from __future__ import annotations
 from typing import List, Dict, Any, Optional, Callable
 from pathlib import Path
 from netagentbench.scenarios.dataset import ScenarioDataset
