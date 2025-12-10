@@ -216,7 +216,7 @@ If you use NetAgentBench in your research, please cite:
 ```bibtex
 @software{netagentbench2025,
   title={NetAgentBench: A Benchmark for Evaluating AI Agents in Intent-Based Network Automation},
-  author={RomeroCode},
+  author={Marcos Lima Romero},
   year={2025},
   url={https://github.com/RomeroCode/NetAgentBench}
 }
