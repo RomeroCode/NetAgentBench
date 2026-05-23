@@ -5,6 +5,34 @@ LangGraph-compatible tool definitions for slice state APIs.
 from typing import Any, Dict, List
 
 
+_SLICE_TOOL_API_MAP: Dict[str, Dict[str, str]] = {
+    "create_slice_state": {"method": "post", "endpoint": "/slice_state"},
+    "get_slice_state": {"method": "get", "endpoint": "/slice_state"},
+    "update_slice_lifecycle_state": {"method": "patch", "endpoint": "/slice_state"},
+    "delete_slice_state": {"method": "delete", "endpoint": "/slice_state"},
+    "upsert_slice_configuration_state": {
+        "method": "post",
+        "endpoint": "/slice_configuration_state",
+    },
+    "get_slice_configuration_state": {
+        "method": "get",
+        "endpoint": "/slice_configuration_state",
+    },
+    "upsert_slice_verification_state": {
+        "method": "post",
+        "endpoint": "/slice_verification_state",
+    },
+    "get_slice_verification_state": {
+        "method": "get",
+        "endpoint": "/slice_verification_state",
+    },
+    "upsert_slice_usage_state": {"method": "post", "endpoint": "/slice_usage_state"},
+    "get_slice_usage_state": {"method": "get", "endpoint": "/slice_usage_state"},
+    "record_tool_call_history": {"method": "post", "endpoint": "/tool_call_history"},
+    "list_tool_call_history": {"method": "get", "endpoint": "/tool_call_history"},
+}
+
+
 SLICE_TOOLS = [
     {
         "type": "function",
@@ -273,3 +301,20 @@ def get_slice_tool_by_name(tool_name: str) -> Dict[str, Any]:
 def get_all_slice_tool_names() -> List[str]:
     """Get list of all available slice tool names."""
     return [tool["function"]["name"] for tool in SLICE_TOOLS]
+
+
+def call_slice_tool_api(
+    tool_name: str, parameters: Dict[str, Any], api_client: Any
+) -> Dict[str, Any]:
+    """Call a mocked API client using a slice tool name and payload."""
+    get_slice_tool_by_name(tool_name)
+    api_call = _SLICE_TOOL_API_MAP[tool_name]
+    method = api_call["method"]
+    endpoint = api_call["endpoint"]
+    client_method = getattr(api_client, method)
+
+    if method == "get":
+        return client_method(endpoint, params=parameters)
+    if method == "delete":
+        return client_method(endpoint, params=parameters)
+    return client_method(endpoint, json=parameters)

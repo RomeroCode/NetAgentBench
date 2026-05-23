@@ -1,9 +1,12 @@
 """Tests for slice tools and tool registry."""
+from unittest.mock import Mock
+
 from netagentbench.agents.langgraph_agent import LangGraphAgent
 from netagentbench.evaluation.benchmark import Benchmark
 from netagentbench.scenarios.scenario import Scenario, ScenarioCategory, ToolCall
 from netagentbench.tools.slice_tools import (
     SLICE_TOOLS,
+    call_slice_tool_api,
     get_slice_tool_by_name,
     get_all_slice_tool_names,
 )
@@ -48,3 +51,29 @@ def test_langgraph_agent_generates_slice_tool_call():
 
     assert len(tool_calls) == 1
     assert tool_calls[0]["tool_name"] == "create_slice_state"
+
+
+def test_call_slice_tool_api_with_post_payload():
+    mock_api = Mock()
+    mock_api.post.return_value = {"status": "ok"}
+    payload = {
+        "slice_id": "slice-alpha",
+        "tenant_id": "tenant-alpha",
+        "lifecycle_state": "CREATED",
+    }
+
+    response = call_slice_tool_api("create_slice_state", payload, mock_api)
+
+    mock_api.post.assert_called_once_with("/slice_state", json=payload)
+    assert response == {"status": "ok"}
+
+
+def test_call_slice_tool_api_with_get_params():
+    mock_api = Mock()
+    mock_api.get.return_value = {"slice_id": "slice-alpha"}
+    payload = {"slice_id": "slice-alpha"}
+
+    response = call_slice_tool_api("get_slice_state", payload, mock_api)
+
+    mock_api.get.assert_called_once_with("/slice_state", params=payload)
+    assert response["slice_id"] == "slice-alpha"
