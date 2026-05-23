@@ -20,7 +20,8 @@ NetAgentBench provides a comprehensive framework to assess the capability of AI 
 - **Flexible Evaluation Framework**: Support for both strict and lenient evaluation modes
 - **Rich Metrics**: Accuracy, Precision, Recall, F1-Score, and detailed error analysis
 - **Easy Integration**: Simple interface for evaluating custom agents and LLMs
-- **Pure Python**: No external dependencies required for core functionality
+- **LangGraph Workflow Support**: Build agents as explicit state graphs
+- **LangSmith Tracing**: Optional tracing hooks for scenario processing
 
 ## 📦 Installation
 
@@ -146,24 +147,20 @@ scenario = Scenario(
 ## 🤖 Implementing Custom Agents
 
 ```python
-from netagentbench.agents import AgentInterface
+from netagentbench.agents import LangGraphAgent
 from netagentbench.scenarios import Scenario
 
-class MyAgent(AgentInterface):
-    def process_scenario(self, scenario: Scenario, available_tools: list) -> list:
-        # Your LLM/agent logic here
-        # Parse scenario.intent and scenario.context
-        # Select appropriate tools from available_tools
-        # Return tool calls
-        return [
-            {
-                "tool_name": "configure_interface",
-                "parameters": {...}
-            }
-        ]
-    
-    def get_reasoning_steps(self) -> list:
-        return ["Step 1: ...", "Step 2: ..."]
+class MyAgent(LangGraphAgent):
+    def __init__(self):
+        super().__init__(name="MyLangGraphAgent")
+```
+
+To enable LangSmith tracing, configure:
+
+```bash
+export LANGSMITH_TRACING=true
+export LANGSMITH_API_KEY=your_api_key
+export LANGSMITH_PROJECT=netagentbench
 ```
 
 ## 📁 Project Structure

@@ -27,7 +27,8 @@ setup(
     ],
     python_requires=">=3.8",
     install_requires=[
-        # No external dependencies required for core functionality
+        "langgraph>=1.2.1",
+        "langsmith>=0.8.5",
     ],
     extras_require={
         "dev": [

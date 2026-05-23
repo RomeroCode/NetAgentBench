@@ -1,4 +1,6 @@
-# Core dependencies (none required - pure Python)
+# Core dependencies
+langgraph>=1.2.1
+langsmith>=0.8.5
 
 # Optional dependencies for development
 pytest>=7.0.0
