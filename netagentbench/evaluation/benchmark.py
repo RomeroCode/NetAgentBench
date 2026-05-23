@@ -9,7 +9,7 @@ from netagentbench.scenarios.dataset import ScenarioDataset
 from netagentbench.scenarios.scenario import Scenario, ScenarioCategory
 from netagentbench.evaluation.evaluator import Evaluator
 from netagentbench.evaluation.metrics import Metrics, EvaluationResult
-from netagentbench.tools.network_tools import NETWORK_TOOLS
+from netagentbench.tools.slice_tools import SLICE_TOOLS
 from netagentbench.tools.tool_registry import ToolRegistry
 
 
@@ -33,7 +33,7 @@ class Benchmark:
         self.dataset = dataset or ScenarioDataset()
         self.evaluator = Evaluator(strict_mode=strict_mode)
         self.metrics = Metrics()
-        self.tool_registry = ToolRegistry(NETWORK_TOOLS)
+        self.tool_registry = ToolRegistry(SLICE_TOOLS)
     
     def load_dataset(self, filepath: Path) -> None:
         """
