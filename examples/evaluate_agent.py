@@ -7,103 +7,16 @@ from typing import List, Dict, Any
 
 from netagentbench import Benchmark
 from netagentbench.scenarios import Scenario
-from netagentbench.agents import BaseAgent
+from netagentbench.agents import LangGraphAgent
 
 
-class ExampleAgent(BaseAgent):
+class ExampleAgent(LangGraphAgent):
     """
-    Example agent implementation that demonstrates the interface.
-    
-    This is a simple rule-based agent that maps intents to tool calls.
-    Real agents would use LLMs or more sophisticated reasoning.
+    Example LangGraph-based agent implementation.
     """
     
     def __init__(self):
-        super().__init__(name="ExampleRuleBasedAgent")
-    
-    def process_scenario(
-        self,
-        scenario: Scenario,
-        available_tools: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
-        """
-        Process a scenario and return tool calls.
-        
-        This example uses simple keyword matching - a real agent would
-        use an LLM to understand the intent and select appropriate tools.
-        """
-        intent = scenario.intent.lower()
-        context = scenario.context
-        self.reasoning_steps = []
-        
-        self.reasoning_steps.append(f"Analyzing intent: {scenario.intent}")
-        self.reasoning_steps.append(f"Available context: {list(context.keys())}")
-        
-        tool_calls = []
-        
-        # Simple keyword-based routing
-        if "configure interface" in intent or "configure.*interface" in intent:
-            self.reasoning_steps.append("Detected interface configuration intent")
-            # Extract device and interface info from context
-            tool_calls.append({
-                "tool_name": "configure_interface",
-                "parameters": {
-                    "device_id": context.get("device_id", "unknown"),
-                    "interface_name": "GigabitEthernet0/1",  # Simplified
-                    "ip_address": "192.168.1.1",
-                    "subnet_mask": "255.255.255.0",
-                    "enabled": True
-                }
-            })
-        
-        elif "vlan" in intent:
-            self.reasoning_steps.append("Detected VLAN configuration intent")
-            tool_calls.append({
-                "tool_name": "configure_vlan",
-                "parameters": {
-                    "device_id": context.get("device_id", "unknown"),
-                    "vlan_id": 100,
-                    "vlan_name": "Sales",
-                    "interfaces": ["Eth1", "Eth2"]
-                }
-            })
-        
-        elif "connectivity" in intent or "ping" in intent:
-            self.reasoning_steps.append("Detected connectivity troubleshooting intent")
-            dest = context.get("server_ip", "10.0.0.5")
-            tool_calls.append({
-                "tool_name": "ping_test",
-                "parameters": {
-                    "source_device": context.get("device_id", "unknown"),
-                    "destination": dest,
-                    "count": 4
-                }
-            })
-            tool_calls.append({
-                "tool_name": "traceroute",
-                "parameters": {
-                    "source_device": context.get("device_id", "unknown"),
-                    "destination": dest,
-                    "max_hops": 30
-                }
-            })
-        
-        elif "block" in intent or "acl" in intent:
-            self.reasoning_steps.append("Detected security/ACL configuration intent")
-            tool_calls.append({
-                "tool_name": "configure_acl",
-                "parameters": {
-                    "device_id": context.get("device_id", "unknown"),
-                    "acl_name": "BLOCK_SUBNET",
-                    "acl_type": "extended",
-                    "rules": [],
-                    "interface": "GigabitEthernet0/0",
-                    "direction": "in"
-                }
-            })
-        
-        self.reasoning_steps.append(f"Generated {len(tool_calls)} tool calls")
-        return tool_calls
+        super().__init__(name="ExampleLangGraphAgent")
 
 
 def run_example():
