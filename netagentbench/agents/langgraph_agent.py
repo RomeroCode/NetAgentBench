@@ -65,73 +65,99 @@ class LangGraphAgent(BaseAgent):
 
         available_tool_names = set(self.extract_tool_names(available_tools))
 
-        if "configure interface" in intent or "configure.*interface" in intent:
-            reasoning_steps.append("Detected interface configuration intent")
-            if "configure_interface" in available_tool_names:
+        slice_id = context.get("slice_id", "slice-001")
+        tenant_id = context.get("tenant_id", "tenant-001")
+
+        if "create" in intent and "slice" in intent:
+            reasoning_steps.append("Detected slice creation intent")
+            if "create_slice_state" in available_tool_names:
                 tool_calls.append(
                     {
-                        "tool_name": "configure_interface",
+                        "tool_name": "create_slice_state",
                         "parameters": {
-                            "device_id": context.get("device_id", "unknown"),
-                            "interface_name": "GigabitEthernet0/1",
-                            "ip_address": "192.168.1.1",
-                            "subnet_mask": "255.255.255.0",
-                            "enabled": True,
+                            "slice_id": slice_id,
+                            "tenant_id": tenant_id,
+                            "lifecycle_state": "CREATED",
                         },
                     }
                 )
-        elif "vlan" in intent:
-            reasoning_steps.append("Detected VLAN configuration intent")
-            if "configure_vlan" in available_tool_names:
+        elif "configure" in intent and "slice" in intent:
+            reasoning_steps.append("Detected slice configuration intent")
+            if "upsert_slice_configuration_state" in available_tool_names:
                 tool_calls.append(
                     {
-                        "tool_name": "configure_vlan",
+                        "tool_name": "upsert_slice_configuration_state",
                         "parameters": {
-                            "device_id": context.get("device_id", "unknown"),
-                            "vlan_id": 100,
-                            "vlan_name": "Sales",
-                            "interfaces": ["Eth1", "Eth2"],
+                            "slice_id": slice_id,
+                            "configured_nfs": context.get("configured_nfs", []),
+                            "policies_applied": context.get("policies_applied", False),
+                            "last_config_status": context.get(
+                                "last_config_status", "SUCCESS"
+                            ),
                         },
                     }
                 )
-        elif "connectivity" in intent or "ping" in intent:
-            reasoning_steps.append("Detected connectivity troubleshooting intent")
-            destination = context.get("server_ip", "10.0.0.5")
-            if "ping_test" in available_tool_names:
+            if "update_slice_lifecycle_state" in available_tool_names:
                 tool_calls.append(
                     {
-                        "tool_name": "ping_test",
+                        "tool_name": "update_slice_lifecycle_state",
                         "parameters": {
-                            "source_device": context.get("device_id", "unknown"),
-                            "destination": destination,
-                            "count": 4,
+                            "slice_id": slice_id,
+                            "lifecycle_state": "CONFIGURED",
                         },
                     }
                 )
-            if "traceroute" in available_tool_names:
+        elif ("activate" in intent or "active" in intent) and "slice" in intent:
+            reasoning_steps.append("Detected slice activation intent")
+            if "update_slice_lifecycle_state" in available_tool_names:
                 tool_calls.append(
                     {
-                        "tool_name": "traceroute",
+                        "tool_name": "update_slice_lifecycle_state",
                         "parameters": {
-                            "source_device": context.get("device_id", "unknown"),
-                            "destination": destination,
-                            "max_hops": 30,
+                            "slice_id": slice_id,
+                            "lifecycle_state": "ACTIVE",
                         },
                     }
                 )
-        elif "block" in intent or "acl" in intent:
-            reasoning_steps.append("Detected security/ACL configuration intent")
-            if "configure_acl" in available_tool_names:
+        elif "verify" in intent or "verification" in intent:
+            reasoning_steps.append("Detected slice verification intent")
+            if "upsert_slice_verification_state" in available_tool_names:
                 tool_calls.append(
                     {
-                        "tool_name": "configure_acl",
+                        "tool_name": "upsert_slice_verification_state",
                         "parameters": {
-                            "device_id": context.get("device_id", "unknown"),
-                            "acl_name": "BLOCK_SUBNET",
-                            "acl_type": "extended",
-                            "rules": [],
-                            "interface": "GigabitEthernet0/0",
-                            "direction": "in",
+                            "slice_id": slice_id,
+                            "verification_result": context.get(
+                                "verification_result", "OK"
+                            ),
+                            "issues": context.get("issues", []),
+                        },
+                    }
+                )
+        elif "usage" in intent or "traffic" in intent or "ue" in intent:
+            reasoning_steps.append("Detected slice usage intent")
+            if "upsert_slice_usage_state" in available_tool_names:
+                tool_calls.append(
+                    {
+                        "tool_name": "upsert_slice_usage_state",
+                        "parameters": {
+                            "slice_id": slice_id,
+                            "active_ues": context.get("active_ues", []),
+                            "traffic_present": context.get("traffic_present", False),
+                            "avg_latency_ms": context.get("avg_latency_ms"),
+                            "avg_throughput_mbps": context.get("avg_throughput_mbps"),
+                        },
+                    }
+                )
+        elif "history" in intent or "audit" in intent:
+            reasoning_steps.append("Detected tool call history intent")
+            if "list_tool_call_history" in available_tool_names:
+                tool_calls.append(
+                    {
+                        "tool_name": "list_tool_call_history",
+                        "parameters": {
+                            "slice_id": slice_id,
+                            "limit": context.get("limit", 50),
                         },
                     }
                 )

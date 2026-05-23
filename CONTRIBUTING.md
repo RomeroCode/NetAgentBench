@@ -54,9 +54,9 @@ Scenario(
 
 ### Adding New Tools
 
-To add new network automation tools:
+To add new tool definitions:
 
-1. Add tool definitions to `netagentbench/tools/network_tools.py`
+1. Add tool definitions to `netagentbench/tools/slice_tools.py`
 2. Follow the OpenAI function calling format
 3. Include comprehensive parameter descriptions
 4. Document required vs optional parameters
