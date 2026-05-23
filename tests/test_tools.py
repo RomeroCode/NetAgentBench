@@ -1,5 +1,7 @@
 """Tests for slice tools and tool registry."""
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+
+import langsmith.run_helpers as run_helpers
 
 from netagentbench.agents.langgraph_agent import LangGraphAgent
 from netagentbench.evaluation.benchmark import Benchmark
@@ -77,3 +79,29 @@ def test_call_slice_tool_api_with_get_params():
 
     mock_api.get.assert_called_once_with("/slice_state", params=payload)
     assert response["slice_id"] == "slice-alpha"
+
+
+def test_langsmith_is_invoked_with_mocked_slice_api_flow():
+    scenario = Scenario(
+        id="slice_create_trace_001",
+        category=ScenarioCategory.CONFIGURATION,
+        intent="Create a new slice for tenant alpha",
+        context={"slice_id": "slice-alpha", "tenant_id": "tenant-alpha"},
+        expected_tools=[ToolCall(tool_name="create_slice_state", parameters={})],
+    )
+    agent = LangGraphAgent()
+    mock_api = Mock()
+    mock_api.post.return_value = {"status": "ok"}
+
+    with patch("langsmith.run_helpers._setup_run", wraps=run_helpers._setup_run) as setup_run:
+        tool_calls = agent.process_scenario(scenario, SLICE_TOOLS)
+
+    assert setup_run.call_count >= 1
+    assert tool_calls[0]["tool_name"] == "create_slice_state"
+    response = call_slice_tool_api(
+        "create_slice_state",
+        tool_calls[0]["parameters"],
+        mock_api,
+    )
+    mock_api.post.assert_called_once()
+    assert response == {"status": "ok"}
